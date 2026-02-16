@@ -75,23 +75,19 @@ function SolarPreviewContent() {
     }
   };
 
-  const calculateSavings = (solarData: SolarData) => {
+  const calculatePotential = (solarData: SolarData) => {
     const sunshineHours = solarData.maxSunshineHoursPerYear;
     const maxPanels = solarData.maxArrayPanelsCount;
     
-    // Rough calculations for excitement
+    // System calculations
     const estimatedSystemSize = (maxPanels * 0.4); // 400W panels = 0.4 kW each
-    const annualProduction = estimatedSystemSize * sunshineHours * 0.85; // 85% efficiency
-    const monthlySavings = Math.round((annualProduction / 12) * 0.12); // $0.12/kWh
-    const annualSavings = monthlySavings * 12;
-    const savings25Year = Math.round(annualSavings * 25 * 1.03); // 3% escalation
+    const annualProduction = Math.round(estimatedSystemSize * sunshineHours * 0.85); // 85% efficiency
+    const co2Offset = Math.round(estimatedSystemSize * 1.5); // tons/year
     
     return {
-      monthlySavings,
-      annualSavings,
-      savings25Year,
       systemSize: estimatedSystemSize.toFixed(1),
-      co2Offset: Math.round(estimatedSystemSize * 1.5), // tons/year
+      annualKwh: annualProduction,
+      co2Offset,
     };
   };
 
@@ -158,7 +154,7 @@ function SolarPreviewContent() {
   // Preview data loaded - show solar preview
   if (previewData) {
     const solarPotential = previewData.solarData.solarPotential;
-    const savings = calculateSavings(solarPotential);
+    const potential = calculatePotential(solarPotential);
     const sunshineHours = solarPotential.maxSunshineHoursPerYear;
     
     // Determine quality category
@@ -208,74 +204,85 @@ function SolarPreviewContent() {
             </div>
           </div>
 
-          {/* Solar Quality Badge */}
-          <div className="stat-card text-center">
-            <div className="text-6xl mb-3">{qualityEmoji}</div>
-            <h2 className="text-3xl font-bold mb-2" style={{ color: qualityColor }}>
-              {quality.toUpperCase()} Solar Location
+          {/* Solar Quality Badge - Make them feel SPECIAL */}
+          <div className="stat-card text-center py-8">
+            <div className="text-7xl mb-4">{qualityEmoji}</div>
+            <h2 className="text-4xl font-bold mb-3 gradient-text">
+              You're Lucky!
             </h2>
+            <p className="text-2xl font-bold mb-3" style={{ color: qualityColor }}>
+              {quality.toUpperCase()} Solar Location
+            </p>
+            <div className="text-6xl font-bold text-accent my-4">
+              {sunshineHours.toLocaleString()}
+            </div>
             <p className="text-secondary text-lg">
-              {sunshineHours.toLocaleString()} sunshine hours per year
+              sunshine hours per year!
+            </p>
+            <p className="text-white font-bold mt-4">
+              Your home is perfect for solar ☀️
             </p>
           </div>
 
           {/* Key Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="card text-center">
-              <div className="text-3xl mb-2">☀️</div>
-              <div className="text-2xl font-bold text-accent">{savings.systemSize} kW</div>
-              <div className="text-sm text-secondary mt-1">System Size</div>
+            <div className="card text-center py-6">
+              <div className="text-4xl mb-3">⚡</div>
+              <div className="text-3xl font-bold text-accent mb-2">{potential.systemSize} kW</div>
+              <div className="text-sm text-secondary">Recommended System</div>
             </div>
             
-            <div className="card text-center">
-              <div className="text-3xl mb-2">📦</div>
-              <div className="text-2xl font-bold text-accent">{solarPotential.maxArrayPanelsCount}</div>
-              <div className="text-sm text-secondary mt-1">Solar Panels</div>
+            <div className="card text-center py-6">
+              <div className="text-4xl mb-3">📦</div>
+              <div className="text-3xl font-bold text-accent mb-2">{solarPotential.maxArrayPanelsCount}</div>
+              <div className="text-sm text-secondary">Solar Panels</div>
             </div>
             
-            <div className="card text-center">
-              <div className="text-3xl mb-2">💰</div>
-              <div className="text-2xl font-bold text-green-500">${savings.monthlySavings}</div>
-              <div className="text-sm text-secondary mt-1">Monthly Savings</div>
-            </div>
-            
-            <div className="card text-center">
-              <div className="text-3xl mb-2">🌲</div>
-              <div className="text-2xl font-bold text-green-500">{savings.co2Offset}</div>
-              <div className="text-sm text-secondary mt-1">Tons CO₂ Saved/Year</div>
+            <div className="card text-center py-6 col-span-2">
+              <div className="text-4xl mb-3">💡</div>
+              <div className="text-3xl font-bold text-green-500 mb-2">
+                {potential.annualKwh.toLocaleString()} kWh
+              </div>
+              <div className="text-sm text-secondary">Clean Energy Per Year</div>
+              <p className="text-xs text-secondary mt-2">That's enough to power your entire home!</p>
             </div>
           </div>
 
-          {/* 25-Year Savings Highlight */}
-          <div className="stat-card text-center py-8">
-            <p className="text-sm text-secondary uppercase tracking-wide mb-3">25-Year Savings</p>
-            <h3 className="text-5xl font-bold gradient-text mb-3">
-              ${savings.savings25Year.toLocaleString()}
+          {/* Environmental Impact */}
+          <div className="card py-6">
+            <h3 className="text-xl font-bold mb-4 text-center text-accent">🌍 Your Environmental Impact</h3>
+            <div className="space-y-4 text-center text-lg">
+              <p>
+                <span className="text-white font-bold text-2xl">{potential.co2Offset} tons</span><br />
+                <span className="text-secondary">of CO₂ offset every year</span>
+              </p>
+              <p className="text-secondary">That's like planting</p>
+              <p className="text-white font-bold text-3xl">{potential.co2Offset * 50} trees 🌳</p>
+            </div>
+          </div>
+
+          {/* What This Means */}
+          <div className="stat-card py-8">
+            <h3 className="text-2xl font-bold mb-4 text-center gradient-text">
+              What This Means For You
             </h3>
-            <p className="text-secondary text-lg">
-              That's like getting a new car... for free!
-            </p>
-          </div>
-
-          {/* Fun Facts */}
-          <div className="card">
-            <h3 className="text-xl font-bold mb-4 text-accent">🌍 Environmental Impact</h3>
-            <div className="space-y-3 text-secondary">
-              <p>✨ Your solar system will offset <span className="text-white font-bold">{savings.co2Offset} tons of CO₂</span> every year</p>
-              <p>🌳 That's like planting <span className="text-white font-bold">{savings.co2Offset * 50} trees</span></p>
-              <p>🚗 Or taking <span className="text-white font-bold">{Math.round(savings.co2Offset / 4.6)} cars</span> off the road</p>
+            <div className="space-y-3 text-lg">
+              <p>✅ Your roof gets <span className="text-accent font-bold">amazing</span> sunlight</p>
+              <p>✅ Perfect space for <span className="text-accent font-bold">{solarPotential.maxArrayPanelsCount} panels</span></p>
+              <p>✅ Can produce <span className="text-accent font-bold">{potential.annualKwh.toLocaleString()} kWh</span> of clean energy</p>
+              <p>✅ Your home is <span className="text-accent font-bold">ideal</span> for solar!</p>
             </div>
           </div>
 
           {/* CTA */}
           <div className="card text-center py-8">
-            <h3 className="text-2xl font-bold mb-4">Ready to Go Solar?</h3>
-            <p className="text-secondary mb-6">
+            <h3 className="text-2xl font-bold mb-4">Excited to Learn More?</h3>
+            <p className="text-secondary mb-6 text-lg">
               Your appointment is coming up soon.<br />
-              We'll show you exactly how this works!
+              We'll show you exactly how this works for your home!
             </p>
-            <div className="flex flex-col gap-3">
-              <a href="tel:4805551234" className="btn-primary w-full">
+            <div className="flex flex-col gap-4">
+              <a href="tel:4805551234" className="btn-primary w-full py-6 text-xl">
                 📞 Call Us Now
               </a>
               <p className="text-sm text-secondary">(480) 555-1234</p>
